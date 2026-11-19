@@ -1,0 +1,124 @@
+Explicatii cod – Magazin de Bijuterii (Voicu Alexandru, grupa 244)
+
+1. Structura proiectului
+Proiectul Django se numeste magazinbijuterii, iar aplicatia in care sunt toate paginile se numeste magazin_bijuterii. Aplicatia este adaugata in settings.py la INSTALLED_APPS (magazin_bijuterii.apps.MagazinBijuteriiConfig). Tot acolo am setat LANGUAGE_CODE = 'ro' si TIME_ZONE = 'Europe/Bucharest'.
+
+In urls.py din proiect, linia path("magazin_bijuterii/", include("magazin_bijuterii.urls")) leaga toate rutele aplicatiei sub prefixul /magazin_bijuterii/. Rutele aplicatiei sunt definite in magazin_bijuterii/urls.py:
+- "" → index (pagina principala)
+- "info" → info
+- "log" → log
+- "istoric" → istoric
+- "despre" → despre
+- re_path(r'^accesare(?P<id>\d+)$', ...) → afis_accesare. Expresia regulata prinde cai de forma /accesare5, iar grupul cu nume (?P<id>\d+) trimite numarul ca parametrul id al functiei.
+
+2. Middleware (middleware.py)
+Functia get_ip(request) citeste IP-ul clientului: daca cererea a trecut printr-un proxy, IP-ul se afla in headerul HTTP_X_FORWARDED_FOR (luam ultimul din lista), altfel in REMOTE_ADDR.
+Clasa IpMiddleware este un middleware: in __init__ primeste get_response, iar in __call__ seteaza request.ip_client = get_ip(request) inainte de a apela functia de vizualizare. Astfel, toate functiile din views.py au IP-ul direct in request.ip_client. Middleware-ul este adaugat la finalul listei MIDDLEWARE din settings.py ('magazin_bijuterii.middleware.IpMiddleware').
+
+3. Constante (views.py)
+- PREFIX_APLICATIE = "/magazin_bijuterii" – folosit ca sa extragem numele paginii din URL.
+- ZILE_SAPTAMANA si LUNI_AN – numele zilelor si lunilor in romana.
+- FORMAT_ZI = "%A, %-d %B %Y" – formatul cerut (de exemplu "Joi, 2 Octombrie 2025"). %-d inseamna ziua fara 0 in fata.
+- FORMAT_TIMP = "%H:%M:%S" si FORMAT_DATA_ORA (data + ora).
+- PAGINI_SITE – lista paginilor, folosita la calculul paginii cel mai putin / cel mai mult accesate (ca sa apara si paginile cu 0 accesari).
+- PROPRIETATI_ACCESARE – proprietatile care pot aparea ca si coloane in tabelul din /log.
+
+4. Functii ajutatoare
+formateaza_data_ro(data, format) – formateaza un datetime ca strftime, dar inlocuieste intai %A, %B si %-d cu ziua saptamanii, numele lunii (in romana) si ziua din luna. Este singurul loc din cod unde se face formatarea datei in romana; clasa Accesare o refoloseste, ca sa nu avem aceeasi bucata de cod in doua locuri.
+html_pagina(titlu, continut) – construieste un document HTML complet, cu titlul pus atat in <title> (titlul tabului) cat si in <h1>.
+
+5. Clasa Accesare
+- nr_accesari este o proprietate de clasa (contor). In __init__ se incrementeaza si valoarea devine id-ul noii accesari, deci id-ul se autoincrementeaza.
+- __init__(ip_client, url, parametri={}) – salveaza IP-ul, URL-ul complet, parametrii (dictionar: nume parametru → lista de valori) si data = datetime.now(), adica momentul crearii obiectului.
+- lista_parametri() – returneaza o lista de tupluri (nume, valoare). Daca parametrul nu are valoare, se pune None; daca are mai multe valori (de exemplu iduri dat de mai multe ori), se pune lista lor.
+- string_url() – returneaza URL-ul complet, impreuna cu query string-ul.
+- pagina() – foloseste urlparse ca sa ia doar calea, scoate prefixul aplicatiei si returneaza de exemplu "/" sau "/info".
+- calculeaza_data(tip="", format=FORMAT_ZI) – fara tip, returneaza data accesarii ca string in formatul dat (implicit formatul cerut). Cu tip="zi" returneaza sectiunea HTML "Data si ora" doar cu data, cu tip="timp" doar cu ora, iar cu orice alta valoare cu data si ora.
+- valoare_proprietate(nume) – returneaza valoarea unei proprietati pentru tabelul din /log (data si parametrii sunt formatati frumos).
+- __str__() – afiseaza accesarea in format "camp: valoare", folosind metodele de mai sus (string_url, pagina, calculeaza_data, lista_parametri), plus id-ul si IP-ul.
+
+6. Inregistrarea accesarilor
+lista_accesari este o lista globala in care se pastreaza toate accesarile de la pornirea serverului.
+inregistreaza_accesare(request) creeaza un obiect Accesare cu request.ip_client (de la middleware), request.build_absolute_uri() (URL-ul complet) si parametrii din request.GET (cu getlist, ca sa pastram toate valorile unui parametru). Obiectul este adaugat in lista si afisat in consola cu print (care apeleaza __str__). Functia este apelata la inceputul fiecarei functii de vizualizare.
+
+7. Paginile
+index – afiseaza descrierea proiectului.
+info – are titlul "Informatii despre server". Citeste parametrul data (request.GET.get("data")) si il trimite la calculeaza_data(tip=...), care intoarce sectiunea HTML potrivita. Fara parametru afiseaza data si ora.
+istoric si despre – pagini cu putin continut, care vor fi dezvoltate mai tarziu.
+afis_accesare(request, id) – cauta in lista_accesari accesarea cu id-ul primit din ruta /accesare[id] si afiseaza toate informatiile ei (fiecare linie din __str__ ca element de lista). Daca id-ul nu exista, afiseaza un mesaj.
+
+8. Pagina /log
+- Mai intai se inregistreaza accesarea curenta, ca /log sa apara si el in lista.
+- iduri: request.GET.getlist("iduri") ia toate aparitiile parametrului. Functia selecteaza_dupa_iduri desparte fiecare valoare dupa virgula si pastreaza ordinea; foloseste o multime (iduri_vazute) ca sa nu afiseze un id de doua ori, in afara de cazul in care dubluri=true. Id-urile invalide sau inexistente produc mesaje de eroare.
+- ultimele: se converteste cu int() intr-un bloc try/except; daca nu e numar intreg, se afiseaza mesaj de eroare. Daca n e mai mare decat numarul de accesari k, se afiseaza toate si mesajul "Exista doar k accesari fata de n accesari cerute", altfel se iau ultimele n cu accesari[k - n:].
+- tabel: cu valoarea "tot" se afiseaza toate coloanele din PROPRIETATI_ACCESARE, altfel doar coloanele enumerate (de exemplu tabel=id,url). Tabelul e construit de functia tabel_html. Fara parametrul tabel, accesarile se afiseaza ca lista neordonata.
+- Sub lista sau tabel, functia pagini_extreme numara accesarile pentru fiecare pagina si alege cu min/max (cu parametrul key) pagina cel mai putin, respectiv cel mai mult accesata.
+- accesari=nr adauga o sectiune cu numarul total de accesari de la pornirea serverului (len(lista_accesari)); accesari=detalii adauga o lista neordonata cu data si ora fiecarei accesari.
+- Sectiunea "Parametri" afiseaza cati parametri a primit pagina si numele lor (request.GET.keys()).
+- La final se afiseaza toate mesajele de eroare, cu rosu.
+
+9. Diagrama bazei de date (Task 3)
+Diagrama este in fisierul diagrama_bd.drawio (se deschide in draw.io) si ca imagine in diagrama_bd.png. Descrierea entitatilor, a relatiilor si a formei normale 3 se afla in documentatie.
+
+==========================================================================
+Laborator 3 – Modele si baza de date (adaugat 05.11.2026)
+==========================================================================
+
+9b. Restrictiile cerute in laboratorul 3 (unde se gasesc in models.py)
+- campuri null (minim 5): Ambalaj.culoare, Ambalaj.nivel_rezistenta, Ambalaj.descriere, Brand.site_web, Brand.descriere, Colectie.descriere, SediuMagazin.email, Bijuterie.colectie.
+- camp unic (altul decat id): nume la Ambalaj, Categorie, Brand, Colectie, PiatraPretioasa, SediuMagazin; plus UniqueConstraint (sediu, nr_vitrina) la Vitrina.
+- EmailField / URLField: SediuMagazin.email (EmailField), Brand.site_web (URLField).
+- ordonare implicita (Meta.ordering): Categorie, Brand, Colectie, PiatraPretioasa, SediuMagazin, Vitrina, Bijuterie.
+- choices: Colectie.sezon, PiatraPretioasa.tip, Bijuterie.material (clase TextChoices).
+- valori default (minim 4): Categorie.culoare, Categorie.sigla, Categorie.ordine_afisare, Brand.premium, Vitrina.etaj, Vitrina.iluminata, Bijuterie.puritate_carate, Bijuterie.stoc, Bijuterie.taguri (default=list si blank=True, deci admite loc liber in formularul admin), Bijuterie.data_adaugare.
+- help_text (minim 5): Ambalaj.nivel_rezistenta, Categorie.culoare, Categorie.sigla, Brand.an_infiintare, Brand.premium, Brand.site_web, PiatraPretioasa.duritate_mohs, SediuMagazin.telefon, Vitrina.etaj, Vitrina.iluminata, Bijuterie.puritate_carate, Bijuterie.taguri, Bijuterie.data_adaugare. In admin, textul apare sub campul respectiv in formularul de adaugare/editare.
+- DateTimeField cu data adaugarii ca valoare implicita: Bijuterie.data_adaugare = DateTimeField(default=timezone.now).
+- mesaje de eroare (error_messages, minim 5): Ambalaj.nume (unique, max_length), Categorie.nume (unique, max_length), Brand.nume, Colectie.nume, PiatraPretioasa.nume, SediuMagazin.nume (unique), SediuMagazin.telefon (max_length), Bijuterie.nume (max_length, blank), Bijuterie.pret (invalid, max_digits).
+- constrangeri cu models.Q (minim 5): limite_rezista_ambalaj (Ambalaj), culoare_hex_valida (Categorie, regex pe formatul #rrggbb), an_infiintare_valid (Brand), duritate_mohs_valida (PiatraPretioasa), etaj_valid (Vitrina), pret_pozitiv, puritate_maxim_24, greutate_pozitiva (Bijuterie). Toate au violation_error_message, afisat in admin la salvare.
+- indexuri (Meta.indexes, minim 4): Bijuterie.nume, Bijuterie.pret, Bijuterie.material, Bijuterie.data_adaugare (descrescator), Brand.tara_origine.
+- ImageField: Bijuterie.imagine (necesita pachetul Pillow).
+- numele la plural: verbose_name_plural in Meta la fiecare model (Ambalaje, Categorii, Branduri, Colectii, Pietre pretioase, Sedii magazin, Vitrine, Bijuterii); fiecare model are __str__ relevant.
+- Comenzile pentru crearea userului de baza de date sunt in documentatie/creare_user.sql (schema "django" + user "alexandru"); conexiunea e in settings.py (DATABASES, cu search_path=django).
+
+==========================================================================
+Laborator 4 – Admin, QuerySets, template-uri (adaugat 05.11.2026)
+==========================================================================
+
+10. Modelele (models.py)
+Pe langa Ambalaj (din laboratorul 2) au fost create modelele din diagrama bazei de date: Categorie (nume unic, descriere, culoare hex, sigla = clasa de icon FontAwesome, ordine_afisare), Brand, Colectie (sezon cu TextChoices), PiatraPretioasa, SediuMagazin, Vitrina (entitate slaba: cheie unica (sediu, nr_vitrina) prin UniqueConstraint) si Bijuterie (produsul). Bijuterie are: pret (DecimalField), material (TextChoices), puritate_carate, greutate_grame, stoc, taguri (ArrayField de CharField – de aceea 'django.contrib.postgres' e in INSTALLED_APPS), data_adaugare, imagine (ImageField, salvata in media/produse/), categorie si brand (ForeignKey, one-to-many), colectie (ForeignKey optional), pietre si vitrine (ManyToManyField). Constrangerile CheckConstraint (pret > 0, greutate > 0, puritate <= 24) sunt verificate si in baza de date.
+Metoda get_absolute_url() a modelului Bijuterie intoarce URL-ul paginii proprii a produsului (reverse('magazin_bijuterii:produs')), iar Categorie.get_absolute_url() intoarce pagina categoriei. Proprietatea stoc_limitat compara stocul cu settings.STOC_MIN.
+
+11. Setari noi (settings.py)
+- STOC_MIN = 5 – sub aceasta valoare produsul e marcat "stoc limitat".
+- PROD_PER_PAG = 10 – numarul de produse pe pagina (Paginator).
+- PRODUSE_SIMILARE = 4 – K produse aleatoare din aceeasi categorie afisate pe pagina produsului.
+- MEDIA_URL / MEDIA_ROOT – unde se salveaza imaginile produselor; in urls.py al proiectului se adauga static(settings.MEDIA_URL, ...) ca sa fie servite in DEBUG.
+- TEMPLATES['DIRS'] = [BASE_DIR / 'templates'] – folderul de template-uri al proiectului, folosit pentru suprascrierea template-ului admin (templates/admin/base_site.html). E nevoie de el pentru ca loader-ul de aplicatii ar gasi mai intai base_site.html al aplicatiei django.contrib.admin.
+- context processor 'magazin_bijuterii.context_processors.meniu_categorii' – pune in contextul tuturor template-urilor lista categoriilor care au produse (annotate(Count('bijuterii')).filter(nr_produse__gt=0)), din care se genereaza automat submeniul "Categorii". Categoria "Brose" nu are produse si nu apare in meniu (introdusa pentru testare).
+
+12. Namespacing-ul template-urilor
+Template-urile sunt in magazin_bijuterii/templates/magazin_bijuterii/ si se randeaza cu render(request, 'magazin_bijuterii/nume.html', context). Toate extind baza.html (header cu sigla si meniu, main, footer). Rutele au app_name = 'magazin_bijuterii', deci in template-uri se scrie {% url 'magazin_bijuterii:produse' %}. Paginile vechi (index, info, log, istoric, despre, accesare) au fost mutate pe template-uri.
+
+13. Pagina de produse (views.produse / views.categorie, template produse.html)
+Functia listare_produse(request, categorie=None) construieste QuerySet-ul si e refolosita de ambele view-uri (toate produsele si pagina unei categorii, /categorii/<nume>): asa se refoloseste codul. Pasii:
+- filtrare dupa categorie (daca e cazul);
+- filtrare dupa taguri: pentru fiecare parametru ?tag=... din URL se aplica .filter(taguri__contains=[tag]), deci se pastreaza doar produsele care contin TOATE tagurile active;
+- sortare: parametrul col alege coloana (nume, pret, data_adaugare, stoc, greutate_grame – validata cu dictionarul COLOANE_SORTARE), iar sort=a / sort=d da ordinea (order_by cu prefix '-'). Exemplu: /produse?col=pret&sort=d;
+- paginare cu Paginator(produse, settings.PROD_PER_PAG) si paginator.get_page(request.GET.get('pagina')).
+In template se afiseaza "Pagina X din Y" deasupra si sub produse (include _paginare.html), textul "Se afiseaza produsele intre k si k+n din totalul de x produse" (pagina.start_index, pagina.end_index, paginator.count), tagurile active ca butoane cu "x", iar fiecare produs e in _card_produs.html (chenar in culoarea categoriei, imagine sau imaginea default "imagine indisponibila" din static, nume cu link catre get_absolute_url, categoria ca link + icon, cateva specificatii, marcaj rosu animat pentru stoc limitat, taguri ca linkuri).
+Pentru ca linkurile de pagina / sortare / taguri sa pastreze ceilalti parametri, exista tag-urile de template din templatetags/magazin_extras.py: url_cu(col=..., sort=...), url_pagina(n), url_adauga_tag(tag), url_elimina_tag(tag). Ele copiaza request.GET, modifica parametrul cerut si intorc URL-ul rezultat (resetand pagina la schimbarea sortarii/filtrarii).
+
+14. Pagina produsului (views.produs, template produs.html)
+Afiseaza toate detaliile, imaginea, tagurile (linkuri catre /produse?tag=...) si sectiunea "Produse din aceeasi categorie": Bijuterie.objects.filter(categorie=...).exclude(pk=...).order_by('?')[:PRODUSE_SIMILARE] – K produse aleatoare, fiecare cu nume, imagine si pret, tot cardul fiind link catre produs. Pentru un id inexistent (sau o categorie inexistenta) se randeaza eroare.html cu status 404.
+
+15. Administrare (admin.py)
+- admin.site.site_header / site_title / index_title schimba antetul, titlul tab-ului si titlul paginii principale; admin.site.site_url = '/magazin_bijuterii/' redirectioneaza "Vizualizare site" catre pagina principala a aplicatiei.
+- BijuterieAdmin: list_display cu ordinea schimbata a coloanelor; brand_cu_tara (@admin.display) afiseaza numele si tara brandului (entitate legata one-to-many); pret_formatat si stoc_formatat folosesc format_html pentru text ingrosat/italic si colorat; list_filter (filtre laterale); list_per_page = 5; ordering = ('-pret',) (descrescator dupa pret); search_fields = ('nume', 'descriere') + search_help_text; fieldsets cu doua sectiuni, "Detalii optionale" fiind colapsabila ('classes': ('collapse',)) si continand doar campuri neobligatorii; filter_horizontal pentru many-to-many.
+- Toate celelalte modele au search_fields dupa doua campuri si search_help_text; BrandAdmin e ordonat descrescator dupa an_infiintare; VitrinaAdmin afiseaza adresa sediului (relatie one-to-many).
+- Actiuni (actions): exporta_csv, exporta_json (descarca inregistrarile selectate), marcheaza_epuizat (stoc = 0) si reaprovizioneaza (stoc = 20) – ultimele doua actualizeaza un camp cu queryset.update().
+- Stilizare: templates/admin/base_site.html extinde admin/base.html, adauga CSS-ul static/admin/css/admin_personalizat.css si sigla (imagine SVG) in header. CSS-ul suprascrie variabilele admin-ului: --body-bg (fundalul paginii), fundalul meniului lateral (#nav-sidebar), --breadcrumbs-bg, --selected-row (randul selectat) si culorile butoanelor, cu valori separate pentru tema intunecata.
+
+16. Comenzi de management (management/commands/)
+- populeaza – insereaza categoriile, brandurile, colectiile, pietrele, sediile, vitrinele si ambalajele (update_or_create, deci se poate rula de mai multe ori).
+- genereaza_produse (task bonus) – genereaza comenzi INSERT INTO magazin_bijuterii_bijuterie (...) VALUES (...) cu date aleatoare dar valide: nume unic, pret in intervalul materialului, puritatea potrivita materialului (0 pentru argint/platina/otel/titan), taguri ca ARRAY[...]::varchar[], chei straine existente, siruri cu ' dublat. Scrie fisierul insert_produse.sql (optiunea --fisier) si, cu --executa, ruleaza comenzile prin connection.cursor() si asociaza aleator pietre si vitrine. Exemplu: python manage.py genereaza_produse --numar 50 --seed 244 --executa
+- genereaza_imagini – creeaza cu Pillow imagini placeholder (in culoarea categoriei) pentru o parte dintre produse, ca sa se vada si cazul cu imagine si cel cu "imagine indisponibila".

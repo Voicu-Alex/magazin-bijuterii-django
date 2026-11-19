@@ -1,0 +1,45 @@
+{% extends "magazin_bijuterii/baza.html" %}
+{% load magazin_extras %}
+{% block continut %}
+{% if categorie %}
+<section class="detalii-categorie" style="--culoare-categorie: {{ categorie.culoare }};">
+    <i class="{{ categorie.sigla }} icon-categorie"></i>
+    <div>
+        <p>{{ categorie.descriere }}</p>
+        <p><small>Culoarea categoriei: <span class="mostra-culoare"></span> {{ categorie.culoare }}</small></p>
+    </div>
+</section>
+{% endif %}
+
+<section class="sortare">
+    <span>Sortează după:</span>
+    {% for cheie, eticheta in coloane_sortare.items %}
+        <a class="{% if coloana == cheie %}activ{% endif %}" href="{% url_cu col=cheie sort=sortare %}">{{ eticheta }}</a>
+    {% endfor %}
+    <span class="separator">|</span>
+    <a class="{% if sortare == 'a' %}activ{% endif %}" href="{% url_cu col=coloana sort='a' %}"><i class="fa-solid fa-arrow-up-short-wide"></i> crescător</a>
+    <a class="{% if sortare == 'd' %}activ{% endif %}" href="{% url_cu col=coloana sort='d' %}"><i class="fa-solid fa-arrow-down-wide-short"></i> descrescător</a>
+</section>
+
+{% if taguri_active %}
+<section class="taguri-active">
+    <span>Filtre active:</span>
+    {% for tag in taguri_active %}
+        <a class="tag activ" href="{% url_elimina_tag tag %}">#{{ tag }} <b>&times;</b></a>
+    {% endfor %}
+</section>
+{% endif %}
+
+{% if paginator.count %}
+<p class="interval">Se afișează produsele între {{ pagina.start_index }} și {{ pagina.end_index }} din totalul de {{ paginator.count }} produse{% if categorie %} din categoria {{ categorie.nume }}{% endif %}.</p>
+{% include "magazin_bijuterii/_paginare.html" %}
+<section class="grila-produse">
+    {% for produs in pagina %}
+        {% include "magazin_bijuterii/_card_produs.html" %}
+    {% endfor %}
+</section>
+{% include "magazin_bijuterii/_paginare.html" %}
+{% else %}
+<p class="interval">Nu există produse care să corespundă filtrelor alese.</p>
+{% endif %}
+{% endblock %}

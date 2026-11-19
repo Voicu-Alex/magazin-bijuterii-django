@@ -1,0 +1,14 @@
+{% load magazin_extras %}
+<nav class="paginare">
+    {% if pagina.has_previous %}
+        <a href="{% url_pagina pagina.previous_page_number %}">&laquo; Pagina anterioară</a>
+    {% else %}
+        <span class="dezactivat">&laquo; Pagina anterioară</span>
+    {% endif %}
+    <span class="numar-pagina">Pagina {{ pagina.number }} din {{ paginator.num_pages }}</span>
+    {% if pagina.has_next %}
+        <a href="{% url_pagina pagina.next_page_number %}">Pagina următoare &raquo;</a>
+    {% else %}
+        <span class="dezactivat">Pagina următoare &raquo;</span>
+    {% endif %}
+</nav>

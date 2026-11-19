@@ -1,0 +1,19 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title }}{% endblock %}
+
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" href="{% static 'admin/css/admin_personalizat.css' %}">
+{% endblock %}
+
+{% block branding %}
+<div id="site-name">
+    <a href="{% url 'admin:index' %}">
+        <img class="sigla-admin" src="{% static 'magazin_bijuterii/imagini/sigla.svg' %}" alt="Sigla magazinului">
+        {{ site_header }}
+    </a>
+</div>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

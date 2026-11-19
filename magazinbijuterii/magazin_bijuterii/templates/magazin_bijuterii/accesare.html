@@ -1,0 +1,10 @@
+{% extends "magazin_bijuterii/baza.html" %}
+{% block continut %}
+{% if accesare %}
+<ul>
+    {% for linie in linii %}<li>{{ linie }}</li>{% endfor %}
+</ul>
+{% else %}
+<p>Nu exista o accesare cu acest id.</p>
+{% endif %}
+{% endblock %}

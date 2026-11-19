@@ -1,0 +1,11 @@
+{% extends "magazin_bijuterii/baza.html" %}
+{% block continut %}
+<p>Bun venit la magazinul nostru online de bijuterii! Site-ul prezinta si vinde
+bijuterii lucrate manual sau semnate de branduri cunoscute: inele, coliere, cercei,
+bratari si pandantive din aur, argint si platina, cu sau fara pietre pretioase.
+Produsele vor putea fi filtrate dupa categorie, material, pret, brand sau tipul pietrei,
+iar clientii isi vor putea adauga bijuteriile preferate in cosul virtual. Pe langa
+catalog, site-ul va contine informatii despre istoria magazinului, colectiile
+sezoniere, showroom-urile fizice si o pagina de contact.</p>
+<p><a class="buton" href="{% url 'magazin_bijuterii:produse' %}"><i class="fa-solid fa-gem"></i> Vezi toate produsele</a></p>
+{% endblock %}

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <circle cx="60" cy="60" r="56" fill="#1f1a14" stroke="#c9a227" stroke-width="6"/>
+  <g fill="none" stroke="#c9a227" stroke-width="5" stroke-linejoin="round">
+    <path d="M32 50 L46 30 L74 30 L88 50 L60 92 Z"/>
+    <path d="M32 50 L88 50 M46 30 L60 50 L74 30 M60 50 L60 92"/>
+  </g>
+  <text x="60" y="110" font-family="Georgia, serif" font-size="14" text-anchor="middle" fill="#c9a227">BIJUTERII</text>
+</svg>

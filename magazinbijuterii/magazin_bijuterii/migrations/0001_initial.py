@@ -1,0 +1,25 @@
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    initial = True
+
+    dependencies = [
+    ]
+
+    operations = [
+        migrations.CreateModel(
+            name='Ambalaj',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('nume', models.CharField(max_length=200, unique=True)),
+                ('culoare', models.CharField(max_length=100, null=True)),
+                ('nivel_rezistenta', models.PositiveIntegerField(help_text='Valori intre 1 si 10. Un numar mai mare indica rezistenta mai mare', null=True)),
+                ('descriere', models.TextField(null=True)),
+            ],
+            options={
+                'constraints': [models.CheckConstraint(condition=models.Q(('nivel_rezistenta__lte', 10), ('nivel_rezistenta__gte', 1)), name='limite_rezista_ambalaj', violation_error_message='Nivelul de rezistenta trebuie sa fie intre 1 si 10 inclusiv!')],
+            },
+        ),
+    ]

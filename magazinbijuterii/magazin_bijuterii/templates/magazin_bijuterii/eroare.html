@@ -1,0 +1,8 @@
+{% extends "magazin_bijuterii/baza.html" %}
+{% block continut %}
+<div class="pagina-eroare">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <p>{{ mesaj }}</p>
+    <p><a class="buton" href="{% url 'magazin_bijuterii:produse' %}">Înapoi la produse</a></p>
+</div>
+{% endblock %}

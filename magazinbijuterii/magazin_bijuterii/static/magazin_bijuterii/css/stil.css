@@ -1,0 +1,258 @@
+:root {
+    --auriu: #c9a227;
+    --fundal: #faf7f0;
+    --text: #2b2b2b;
+    --chenar: #e0d6c2;
+    --rosu: #c0392b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    background: var(--fundal);
+    color: var(--text);
+}
+
+a { color: #8a6d1d; }
+
+.antet {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 12px 24px;
+    background: #1f1a14;
+    color: #fff;
+}
+
+.sigla {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--auriu);
+    text-decoration: none;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.sigla img { height: 40px; }
+
+.meniu ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 4px; }
+.meniu > ul > li { position: relative; }
+.meniu a {
+    display: block;
+    padding: 10px 14px;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+}
+.meniu a:hover { background: var(--auriu); color: #1f1a14; }
+
+.submeniu > ul {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    flex-direction: column;
+    min-width: 220px;
+    background: #fff;
+    border: 1px solid var(--chenar);
+    border-radius: 6px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.2);
+    z-index: 10;
+}
+.submeniu:hover > ul { display: flex; }
+.submeniu > ul a { color: var(--text); border-radius: 0; }
+.submeniu > ul a:hover { background: var(--fundal); color: var(--text); }
+.submeniu small { color: #888; }
+
+.continut { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+
+.subsol {
+    text-align: center;
+    padding: 16px;
+    margin-top: 40px;
+    border-top: 1px solid var(--chenar);
+    color: #777;
+}
+
+.buton {
+    display: inline-block;
+    padding: 10px 18px;
+    background: var(--auriu);
+    color: #1f1a14;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.tabel { border-collapse: collapse; width: 100%; max-width: 700px; }
+.tabel th, .tabel td { border: 1px solid var(--chenar); padding: 6px 10px; text-align: left; }
+.tabel th { background: #f1ead9; }
+
+.eroare { color: var(--rosu); }
+
+.pagina-eroare { text-align: center; font-size: 1.2em; }
+.pagina-eroare i { font-size: 4em; color: var(--rosu); }
+
+.detalii-categorie {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 16px 20px;
+    border-left: 8px solid var(--culoare-categorie);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--culoare-categorie) 25%, white), #fff);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+.icon-categorie { font-size: 3em; color: var(--culoare-categorie); }
+.mostra-culoare {
+    display: inline-block;
+    width: 14px; height: 14px;
+    background: var(--culoare-categorie);
+    border: 1px solid #555;
+    vertical-align: middle;
+}
+
+.sortare, .taguri-active {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0;
+}
+.sortare a {
+    padding: 4px 10px;
+    border: 1px solid var(--chenar);
+    border-radius: 14px;
+    text-decoration: none;
+    background: #fff;
+}
+.sortare a.activ { background: var(--auriu); color: #1f1a14; border-color: var(--auriu); }
+.separator { color: #aaa; }
+
+.tag {
+    display: inline-block;
+    padding: 2px 8px;
+    margin: 2px;
+    border-radius: 12px;
+    background: #eee;
+    color: #555;
+    text-decoration: none;
+    font-size: .85em;
+}
+.tag:hover { background: #ddd; }
+.tag.activ { background: #1f1a14; color: #fff; }
+.taguri-active .tag.activ b { margin-left: 4px; color: var(--auriu); }
+
+.interval { font-style: italic; color: #555; }
+
+.paginare {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+}
+.paginare .dezactivat { color: #aaa; }
+.numar-pagina { font-weight: bold; }
+
+.grila-produse {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 18px;
+    margin: 16px 0;
+}
+
+.card-produs {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 2px solid var(--culoare-categorie);
+    border-top-width: 8px;
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.08);
+    transition: transform .15s;
+}
+.card-produs:hover { transform: translateY(-3px); }
+.card-produs.stoc-limitat { outline: 3px solid var(--rosu); outline-offset: 2px; }
+.card-imagine img, .detaliu-imagine img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 6px;
+    background: #f3f3f3;
+}
+.card-produs h3 { margin: 10px 0 4px; font-size: 1.05em; }
+.card-produs h3 a { color: var(--text); text-decoration: none; }
+.card-produs h3 a:hover { color: var(--auriu); }
+
+.eticheta-categorie {
+    align-self: flex-start;
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    background: var(--culoare-categorie);
+    color: #fff;
+    text-decoration: none;
+    font-size: .85em;
+}
+
+.specificatii { list-style: none; padding: 0; margin: 10px 0; font-size: .92em; }
+.specificatii li { padding: 2px 0; }
+
+.insigna-stoc {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    background: var(--rosu);
+    color: #fff;
+    font-size: .85em;
+    animation: pulsare 1.2s infinite;
+}
+@keyframes pulsare {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .55; }
+}
+
+.detaliu-produs {
+    display: grid;
+    grid-template-columns: minmax(220px, 380px) 1fr;
+    gap: 28px;
+    background: #fff;
+    border: 2px solid var(--culoare-categorie);
+    border-radius: 12px;
+    padding: 20px;
+}
+.detaliu-produs.stoc-limitat { border-color: var(--rosu); }
+.detaliu-text .pret { font-size: 1.8em; color: var(--auriu); font-weight: bold; margin: 8px 0; }
+.detaliu-text .tabel { margin: 12px 0; }
+
+.similare { margin-top: 32px; }
+.grila-similare {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px;
+}
+.card-similar {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-decoration: none;
+    color: var(--text);
+    background: #fff;
+    border: 2px solid var(--culoare-categorie);
+    border-radius: 8px;
+    padding: 8px;
+}
+.card-similar img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; }
+.card-similar .nume { font-weight: bold; }
+.card-similar .pret { color: var(--auriu); }
+
+@media (max-width: 700px) {
+    .detaliu-produs { grid-template-columns: 1fr; }
+    .meniu ul { flex-wrap: wrap; }
+}

@@ -1,0 +1,39 @@
+{% extends "magazin_bijuterii/baza.html" %}
+{% block continut %}
+<section>
+    <h2>Accesari</h2>
+    {% if tabel %}
+        {% if coloane %}
+        <table class="tabel">
+            <thead><tr>{% for col in coloane %}<th>{{ col }}</th>{% endfor %}</tr></thead>
+            <tbody>
+            {% for rand in randuri %}
+                <tr>{% for celula in rand %}<td>{{ celula|safe }}</td>{% endfor %}</tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Nu exista coloane valide de afisat.</p>
+        {% endif %}
+    {% else %}
+        <ul>
+        {% for acc in accesari %}
+            <li><a href="{% url 'magazin_bijuterii:accesare' acc.id %}">#{{ acc.id }}</a> - {{ acc.string_url }} ({{ acc.ip_client }})</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+</section>
+<p>Pagina cea mai putin accesata: <b>{{ pagina_min }}</b> ({{ nr_min }} accesari)<br>
+   Pagina cea mai accesata: <b>{{ pagina_max }}</b> ({{ nr_max }} accesari)</p>
+{% if tip_accesari == "nr" %}
+<section><h2>Numar accesari</h2><p>De la pornirea serverului au fost {{ total_accesari }} accesari.</p></section>
+{% elif tip_accesari == "detalii" %}
+<section><h2>Detalii accesari</h2>
+<ul>{% for acc in accesari %}<li>#{{ acc.id }}: {{ acc.calculeaza_data }}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+<section><h2>Parametri</h2>
+<p>S-au primit {{ nume_parametri|length }} parametri{% if nume_parametri %}: {{ nume_parametri|join:", " }}{% else %}.{% endif %}</p>
+</section>
+{% for eroare in erori %}<p class="eroare">{{ eroare }}</p>{% endfor %}
+{% endblock %}

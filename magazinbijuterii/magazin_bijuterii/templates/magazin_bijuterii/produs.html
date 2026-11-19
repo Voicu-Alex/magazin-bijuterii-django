@@ -1,0 +1,62 @@
+{% extends "magazin_bijuterii/baza.html" %}
+{% load static %}
+{% load magazin_extras %}
+{% block continut %}
+<section class="detaliu-produs {% if produs.stoc_limitat %}stoc-limitat{% endif %}"
+         style="--culoare-categorie: {{ produs.categorie.culoare }};">
+    <div class="detaliu-imagine">
+        {% if produs.imagine %}
+            <img src="{{ produs.imagine.url }}" alt="{{ produs.nume }}">
+        {% else %}
+            <img src="{% static 'magazin_bijuterii/imagini/indisponibil.svg' %}" alt="Imagine indisponibilă">
+        {% endif %}
+    </div>
+    <div class="detaliu-text">
+        <a class="eticheta-categorie" href="{{ produs.categorie.get_absolute_url }}">
+            <i class="{{ produs.categorie.sigla }}"></i> {{ produs.categorie.nume }}
+        </a>
+        <p class="pret">{{ produs.pret }} lei</p>
+        {% if produs.stoc_limitat %}
+            <p class="insigna-stoc"><i class="fa-solid fa-fire"></i> Stoc limitat: au mai rămas doar {{ produs.stoc }} bucăți!</p>
+        {% endif %}
+        <p>{{ produs.descriere }}</p>
+        <table class="tabel">
+            <tr><th>Material</th><td>{{ produs.get_material_display }}</td></tr>
+            <tr><th>Puritate</th><td>{{ produs.puritate_carate }} carate</td></tr>
+            <tr><th>Greutate</th><td>{{ produs.greutate_grame }} g</td></tr>
+            <tr><th>Stoc</th><td>{{ produs.stoc }}</td></tr>
+            <tr><th>Brand</th><td>{{ produs.brand.nume }} ({{ produs.brand.tara_origine }}, {{ produs.brand.an_infiintare }}){% if produs.brand.premium %} - premium{% endif %}</td></tr>
+            <tr><th>Colecție</th><td>{% if produs.colectie %}{{ produs.colectie }}{% else %}-{% endif %}</td></tr>
+            <tr><th>Pietre</th><td>{% for piatra in produs.pietre.all %}{{ piatra.nume }}{% if not forloop.last %}, {% endif %}{% empty %}fără pietre{% endfor %}</td></tr>
+            <tr><th>Expus în</th><td>{% for vitrina in produs.vitrine.all %}{{ vitrina }}{% if not forloop.last %}, {% endif %}{% empty %}doar online{% endfor %}</td></tr>
+            <tr><th>Adăugat la</th><td>{{ produs.data_adaugare|date:"d.m.Y" }}</td></tr>
+        </table>
+        <div class="taguri">
+            {% for tag in produs.taguri %}
+                <a class="tag" href="{% url_adauga_tag tag %}">#{{ tag }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="similare">
+    <h2>Produse din aceeași categorie</h2>
+    {% if similare %}
+    <div class="grila-similare">
+        {% for similar in similare %}
+        <a class="card-similar" href="{{ similar.get_absolute_url }}" style="--culoare-categorie: {{ similar.categorie.culoare }};">
+            {% if similar.imagine %}
+                <img src="{{ similar.imagine.url }}" alt="{{ similar.nume }}">
+            {% else %}
+                <img src="{% static 'magazin_bijuterii/imagini/indisponibil.svg' %}" alt="Imagine indisponibilă">
+            {% endif %}
+            <span class="nume">{{ similar.nume }}</span>
+            <span class="pret">{{ similar.pret }} lei</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>Nu există alte produse în această categorie.</p>
+    {% endif %}
+</section>
+{% endblock %}

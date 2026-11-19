@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ titlu }} - Magazin de Bijuterii</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'magazin_bijuterii/css/stil.css' %}">
+</head>
+<body>
+<header class="antet">
+    <a class="sigla" href="{% url 'magazin_bijuterii:index' %}">
+        <img src="{% static 'magazin_bijuterii/imagini/sigla.svg' %}" alt="Sigla magazinului">
+        <span>Magazin de Bijuterii</span>
+    </a>
+    <nav class="meniu">
+        <ul>
+            <li><a href="{% url 'magazin_bijuterii:index' %}">Acasă</a></li>
+            <li><a href="{% url 'magazin_bijuterii:produse' %}">Produse</a></li>
+            <li class="submeniu">
+                <a href="{% url 'magazin_bijuterii:produse' %}">Categorii <i class="fa-solid fa-caret-down"></i></a>
+                <ul>
+                    {% for cat in meniu_categorii %}
+                    <li><a href="{{ cat.get_absolute_url }}" style="border-left: 4px solid {{ cat.culoare }};">
+                        <i class="{{ cat.sigla }}" style="color: {{ cat.culoare }};"></i> {{ cat.nume }}
+                        <small>({{ cat.nr_produse }})</small></a></li>
+                    {% endfor %}
+                </ul>
+            </li>
+            <li><a href="{% url 'magazin_bijuterii:istoric' %}">Istoric</a></li>
+            <li><a href="{% url 'magazin_bijuterii:despre' %}">Despre noi</a></li>
+            <li><a href="{% url 'magazin_bijuterii:info' %}">Info</a></li>
+            <li><a href="{% url 'magazin_bijuterii:log' %}">Log</a></li>
+        </ul>
+    </nav>
+</header>
+<main class="continut">
+    <h1>{{ titlu }}</h1>
+    {% block continut %}{% endblock %}
+</main>
+<footer class="subsol">
+    <p>&copy; {% now "Y" %} Magazin de Bijuterii &middot; Voicu Alexandru, grupa 244</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{% load static %}
+{% load magazin_extras %}
+<article class="card-produs {% if produs.stoc_limitat %}stoc-limitat{% endif %}"
+         style="--culoare-categorie: {{ produs.categorie.culoare }};">
+    <a class="card-imagine" href="{{ produs.get_absolute_url }}">
+        {% if produs.imagine %}
+            <img src="{{ produs.imagine.url }}" alt="{{ produs.nume }}">
+        {% else %}
+            <img src="{% static 'magazin_bijuterii/imagini/indisponibil.svg' %}" alt="Imagine indisponibilă">
+        {% endif %}
+    </a>
+    <h3><a href="{{ produs.get_absolute_url }}">{{ produs.nume }}</a></h3>
+    <a class="eticheta-categorie" href="{{ produs.categorie.get_absolute_url }}">
+        <i class="{{ produs.categorie.sigla }}"></i> {{ produs.categorie.nume }}
+    </a>
+    <ul class="specificatii">
+        <li><b>Preț:</b> {{ produs.pret }} lei</li>
+        <li><b>Material:</b> {{ produs.get_material_display }}</li>
+        <li><b>Brand:</b> {{ produs.brand.nume }}</li>
+        <li><b>Stoc:</b> {{ produs.stoc }}
+            {% if produs.stoc_limitat %}<span class="insigna-stoc"><i class="fa-solid fa-fire"></i> stoc limitat</span>{% endif %}
+        </li>
+    </ul>
+    <div class="taguri">
+        {% for tag in produs.taguri %}
+            <a class="tag {% if tag in taguri_active %}activ{% endif %}" href="{% url_adauga_tag tag %}">#{{ tag }}</a>
+        {% endfor %}
+    </div>
+</article>

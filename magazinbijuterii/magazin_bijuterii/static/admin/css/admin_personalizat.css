@@ -1,0 +1,89 @@
+:root {
+    --primary: #8a6d1d;
+    --secondary: #1f1a14;
+    --accent: #c9a227;
+    --header-bg: #1f1a14;
+    --header-color: #c9a227;
+    --header-link-color: #ffffff;
+    --body-bg: #faf7f0;
+    --darkened-bg: #f1ead9;
+    --meniu-bg: #f1ead9;
+    --breadcrumbs-bg: #c9a227;
+    --breadcrumbs-fg: #1f1a14;
+    --breadcrumbs-link-fg: #1f1a14;
+    --selected-row: #fde9b8;
+    --selected-bg: #f1ead9;
+    --link-fg: #8a6d1d;
+    --link-hover-color: #c9a227;
+    --button-bg: #8a6d1d;
+    --button-hover-bg: #c9a227;
+    --default-button-bg: #1f1a14;
+    --default-button-hover-bg: #c9a227;
+    --object-tools-bg: #8a6d1d;
+    --object-tools-hover-bg: #c9a227;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --body-bg: #1a1711;
+        --darkened-bg: #26211a;
+        --meniu-bg: #26211a;
+        --breadcrumbs-bg: #8a6d1d;
+        --breadcrumbs-fg: #ffffff;
+        --breadcrumbs-link-fg: #ffffff;
+        --selected-row: #4a3b12;
+        --selected-bg: #3a3022;
+        --link-fg: #e0bb4a;
+        --link-hover-color: #ffd866;
+    }
+}
+
+html[data-theme="dark"] {
+    --body-bg: #1a1711;
+    --darkened-bg: #26211a;
+    --meniu-bg: #26211a;
+    --breadcrumbs-bg: #8a6d1d;
+    --breadcrumbs-fg: #ffffff;
+    --breadcrumbs-link-fg: #ffffff;
+    --selected-row: #4a3b12;
+    --selected-bg: #3a3022;
+    --link-fg: #e0bb4a;
+    --link-hover-color: #ffd866;
+}
+
+body {
+    background: var(--body-bg);
+}
+
+#nav-sidebar, .sticky {
+    background-color: var(--meniu-bg);
+}
+
+#nav-sidebar .current-model,
+#changelist tbody tr.selected,
+#changelist tbody tr:has(input[type="checkbox"]:checked) {
+    background-color: var(--selected-row);
+}
+
+div.breadcrumbs {
+    background: var(--breadcrumbs-bg);
+    color: var(--breadcrumbs-fg);
+    font-weight: bold;
+}
+div.breadcrumbs a { color: var(--breadcrumbs-link-fg); text-decoration: underline; }
+
+#branding #site-name a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--header-color);
+}
+.sigla-admin {
+    height: 44px;
+    width: 44px;
+}
+
+.module h2, .module caption, .inline-group h2 {
+    background: #8a6d1d;
+    color: #fff;
+}
