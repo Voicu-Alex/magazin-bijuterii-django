@@ -2,6 +2,7 @@ from datetime import datetime
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.contrib import messages
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
@@ -112,8 +113,35 @@ def inregistreaza_accesare(request):
     return accesare
 
 
+PERMISIUNI_VERIFICATE = {
+    "magazin_bijuterii.change_bijuterie": "modificarea produselor",
+    "magazin_bijuterii.change_categorie": "modificarea categoriilor",
+}
+
+
+def verifica_permisiuni(request):
+    user = request.user
+    if not user.is_authenticated:
+        return
+    permisiuni_proprii = user.get_user_permissions()
+    permisiuni_grup = user.get_group_permissions()
+    for permisiune, descriere in PERMISIUNI_VERIFICATE.items():
+        if not user.has_perm(permisiune):
+            continue
+        if permisiune in permisiuni_proprii:
+            sursa = "permisiune proprie"
+        elif permisiune in permisiuni_grup:
+            grupuri = ", ".join(user.groups.filter(
+                permissions__codename=permisiune.split(".")[1]).values_list("name", flat=True))
+            sursa = f"permisiune primita de la grupul {grupuri}"
+        else:
+            sursa = "superuser"
+        messages.success(request, f"{user.username}, ai permisiunea pentru {descriere} ({sursa}).")
+
+
 def index(request):
     inregistreaza_accesare(request)
+    verifica_permisiuni(request)
     return render(request, "magazin_bijuterii/index.html", {"titlu": "Magazin de Bijuterii"})
 
 

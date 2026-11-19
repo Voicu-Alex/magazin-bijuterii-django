@@ -256,3 +256,7 @@ a { color: #8a6d1d; }
     .detaliu-produs { grid-template-columns: 1fr; }
     .meniu ul { flex-wrap: wrap; }
 }
+
+.mesaje { list-style: none; padding: 0; margin: 0 0 1em; }
+.mesaj { padding: 0.7em 1em; margin-bottom: 0.5em; border-radius: 6px; border-left: 6px solid; }
+.mesaj-success { background: #e8f6ec; border-color: #27ae60; color: #1e6b3d; }

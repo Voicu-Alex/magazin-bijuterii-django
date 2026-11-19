@@ -37,6 +37,13 @@
 </header>
 <main class="continut">
     <h1>{{ titlu }}</h1>
+    {% if messages %}
+    <ul class="mesaje">
+        {% for mesaj in messages %}
+        <li class="mesaj mesaj-{{ mesaj.tags }}">{{ mesaj }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
     {% block continut %}{% endblock %}
 </main>
 <footer class="subsol">
