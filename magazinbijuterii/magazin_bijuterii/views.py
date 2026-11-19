@@ -113,35 +113,10 @@ def inregistreaza_accesare(request):
     return accesare
 
 
-PERMISIUNI_VERIFICATE = {
-    "magazin_bijuterii.change_bijuterie": "modificarea produselor",
-    "magazin_bijuterii.change_categorie": "modificarea categoriilor",
-}
-
-
-def verifica_permisiuni(request):
-    user = request.user
-    if not user.is_authenticated:
-        return
-    permisiuni_proprii = user.get_user_permissions()
-    permisiuni_grup = user.get_group_permissions()
-    for permisiune, descriere in PERMISIUNI_VERIFICATE.items():
-        if not user.has_perm(permisiune):
-            continue
-        if permisiune in permisiuni_proprii:
-            sursa = "permisiune proprie"
-        elif permisiune in permisiuni_grup:
-            grupuri = ", ".join(user.groups.filter(
-                permissions__codename=permisiune.split(".")[1]).values_list("name", flat=True))
-            sursa = f"permisiune primita de la grupul {grupuri}"
-        else:
-            sursa = "superuser"
-        messages.success(request, f"{user.username}, ai permisiunea pentru {descriere} ({sursa}).")
-
-
 def index(request):
     inregistreaza_accesare(request)
-    verifica_permisiuni(request)
+    if request.user.has_perm("magazin_bijuterii.change_bijuterie"):
+        messages.success(request, "Ai permisiunea de a modifica produsele.")
     return render(request, "magazin_bijuterii/index.html", {"titlu": "Magazin de Bijuterii"})
 
 
